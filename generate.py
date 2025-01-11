@@ -1,5 +1,6 @@
 from matplotlib.colors import LinearSegmentedColormap
 import matplotlib.pyplot as plt
+import json
 from collections import defaultdict
 from conversion import merge, rgb_to_hex, okhsl_to_srgb
 
@@ -8,6 +9,14 @@ VALID_CHARS = "etaoinsrhldcumfgpywbvkxjzq;',./"
 VALID_CHARS_SHIFT = "ETAOINSRHLDCUMFGPYWBVLXJZQ:\"<>?"
 BIGRAM_FILE = 'bigrams.txt'
 SKIPGRAM_FILE = '1-skip.txt'
+OUT_DIT = 'out'
+
+# DANISH
+VALID_CHARS = "etaoinsrhldcumfgpywbvkxjzq"
+VALID_CHARS_SHIFT = "ETAOINSRHLDCUMFGPYWBVLXJZQ"
+DANISH_BIGRAMS_FILE = 'danish/bigrams.json'
+DANISH_TRIGRAMS_FILE = 'danish/trigrams.json'
+OUT_DIR = 'out/danish'
 
 # Color stuff
 HIGH_COL = (0.28426, 0.98432, 0.88120)
@@ -29,26 +38,39 @@ def get_col(freq, offset=0):
 # Get bigram freqs
 bigram_freqs = defaultdict(int)
 
-with open(BIGRAM_FILE) as f:
-    for l in f:
-        bigram, freq = l.split('\t')
-        bigram = lower(bigram)
+with open(DANISH_BIGRAMS_FILE) as f:
+    data = json.load(f)
+    for bigram, freq in data.items():
+        bigram_freqs[bigram] += int(freq)
+        bigram_freqs[bigram[1]+bigram[0]] += int(freq)
+        
 
-        if all(c in VALID_CHARS for c in bigram):
-            bigram_freqs[bigram] += int(freq)
-            bigram_freqs[bigram[1]+bigram[0]] += int(freq)
+# with open(BIGRAM_FILE) as f:
+#     for l in f:
+#         bigram, freq = l.split('\t')
+#         bigram = lower(bigram)
+
+#         if all(c in VALID_CHARS for c in bigram):
+#             bigram_freqs[bigram] += int(freq)
+#             bigram_freqs[bigram[1]+bigram[0]] += int(freq)
 
 # Get skipgram freqs
 skipgram_freqs = defaultdict(int)
 
-with open(SKIPGRAM_FILE) as f:
-    for l in f:
-        skipgram, freq = l.split('\t')
-        skipgram = lower(skipgram)
+with open(DANISH_TRIGRAMS_FILE) as f:
+    data = json.load(f)
+    for trigram, freq in data.items():
+        skipgram_freqs[trigram[0]+trigram[2]] += int(freq)
+        skipgram_freqs[trigram[2]+trigram[0]] += int(freq)
 
-        if all(c in VALID_CHARS for c in skipgram):
-            skipgram_freqs[skipgram] += int(freq)
-            skipgram_freqs[skipgram[1]+skipgram[0]] += int(freq)
+# with open(SKIPGRAM_FILE) as f:
+#     for l in f:
+#         skipgram, freq = l.split('\t')
+#         skipgram = lower(skipgram)
+
+#         if all(c in VALID_CHARS for c in skipgram):
+#             skipgram_freqs[skipgram] += int(freq)
+#             skipgram_freqs[skipgram[1]+skipgram[0]] += int(freq)
 
 # Generate the graphs
 high_freq = max(*skipgram_freqs.values(), *bigram_freqs.values())
@@ -82,7 +104,7 @@ for target in VALID_CHARS:
     bigram_cbar = plt.colorbar(bigram_sm, ax=ax)
     bigram_cbar.ax.set_ylabel('Frequency Intensity', fontsize=18, rotation=270, labelpad=20)
     
-    plt.savefig(f'out/{target.upper()}_Stats.png', format='png', dpi=300, bbox_inches='tight')
+    plt.savefig(f'{OUT_DIR}/{target.upper()}_Stats.png', format='png', dpi=300, bbox_inches='tight')
     # plt.show()
     print(f"Exported {target.upper()}_Stats.png")
     plt.close()
