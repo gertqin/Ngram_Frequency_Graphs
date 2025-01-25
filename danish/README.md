@@ -27,3 +27,7 @@
 ![Skipgram and Bigram Comparison for X](../out/danish/X_Stats.png)
 ![Skipgram and Bigram Comparison for Y](../out/danish/Y_Stats.png)
 ![Skipgram and Bigram Comparison for Z](../out/danish/Z_Stats.png)
+
+### Acknowledgements
+
+- `lang.danish.gigaword`: Danish Gigaword Corpus: [license](https://creativecommons.org/licenses/by/4.0/) - [homepage](https://gigaword.dk/)
